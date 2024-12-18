@@ -81,7 +81,6 @@ psutil==6.0.0
 ptyprocess==0.7.0
 pure-eval==0.2.2
 pycparser==2.22
-pygame==2.1.2
 Pygments==2.18.0
 PyOpenGL==3.1.7
 pyparsing==3.0.9
@@ -125,4 +124,4 @@ webcolors==24.6.0
 webencodings==0.5.1
 websocket-client==1.8.0
 Werkzeug==3.0.2
-gunicorn
+gunicorn==23.0.0
