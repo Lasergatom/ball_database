@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}hi{% endblock %}
+{% block content %}
+<div class="content p-1">
+    <table style="border:2px solid black">
+        <!-- <tr>
+            <td>
+                <div class="d-inline-flex flex-column align-items-center" style="width:175px">
+                    <div class="title" style="margin-top: 2px;">登記二維碼</div>
+                    <div class="id">ID: XXXXXX</div>
+                    <div class="name">Name: xxxxxxx</div>
+                    <img class="code">
+                </div>
+            </td>
+        </tr> -->
+    </table>
+</div>
+
+<script>
+    var plist={{ data | tojson }};
+    $("table").append(`<tr style="border:2px solid black"></tr>`)
+    plist["data"].map(function(val,idx){
+        const dataUrl = QRCode.toDataURL(window.location.href.slice(0,-7)+`pqrcode/${val["id"]}`).then(dataUrl => {
+            $("table").children().eq($("table").children().length-1).append(`
+                <td style="border:2px solid black"><div class="d-inline-flex flex-column align-items-center" style="width:200px">
+                    <div class="title" style="margin-bottom:5px;" style="margin-top: 2px;">登記二維碼</div>
+                    <div class="id" style="margin-bottom:5px;">ID: ${val["id"]}</div>
+                    <div class="name text-center" style="height:75px;">Name:<br>${val["name"]}</div>
+                    <img class="code" src="${dataUrl}" style="width:120px;height:120px;margin-bottom:30px;">
+                    </div></td>`)
+            if((idx+1)%5==0){
+                $("table").append(`<tr style="border:2px solid black"></tr>`)
+            }
+        })
+    })
+</script>
+{% endblock %}

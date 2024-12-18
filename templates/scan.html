@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}hi{% endblock %}
+
+{% block content %}
+<nav class="navbar bg-body-tertiary">
+    <form class="container-fluid justify-content-start">
+      <button class="rvq-btn btn btn-success mx-2" type="button">Register Via QRcode</button>
+      <button class="rvi-btn btn btn-outline-secondary mx-2" type="button">Register Via ID</button>
+    </form>
+</nav>
+<div class="id-input-group input-group my-3 w-25 mx-3 d-none">
+    <span class="input-group-text fs-5" id="basic-addon1">ID</span>
+    <input type="text" class="form-control fs-5 id-input" placeholder="ID" aria-label="ID" aria-describedby="basic-addon1">
+</div>
+<div class="inv-id-msg d-none text-danger mx-3">Invalid ID!</div>
+<button class="btn searchid-btn btn-outline-success fs-5 my-2 mx-2 d-none">Search ID</button>
+<div id="reader"></div>
+<div id="result"></div>
+<div id="data"></div>
+<div id="show_when_success" class="d-none">
+    <div class="card data_card mx-2 px-2 fs-5">
+        <div id="pid"></div>
+        <div id="pname"></div>
+        <div id="gender"></div>
+        <div id="school"></div>
+        <div id="arrived"></div>
+        <div id="presence"></div>
+    </div>
+    <div class="mx-2">
+        <button class="btn act_presence bg-success text-white fs-5 my-2">Register as Present</button>
+        <button class="btn act_presence bg-danger text-white fs-5 my-2">Register as Leaving</button>
+    </div>
+</div>
+<button class="btn reset-btn btn-outline-primary fs-5 my-2 mx-2">reset</button>
+
+<iframe src="" class="datatable w-100" style="height:100vh"></iframe>
+<script>
+    $(".datatable").attr("src",window.location.href.slice(0,-4))
+    var scanner = new Html5QrcodeScanner('reader', {
+    qrbox: {
+    width: 250,
+    height: 250,
+    },
+    fps: 20,
+    });
+    scanner.render(success, error);
+    function success(result) {
+        if(result.slice(0,-6)==window.location.href.slice(0,-4)+"pqrcode/"){
+            $("#result").html(`<h2>Valid Code</h2>
+            <p><a href="${result}">${result}</a></p>`)
+            var scanned_id=result.slice(-6,result.length)
+            var plist={{ data | tojson }};
+            plist["data"].map(function(val){
+                if(val["id"]==scanned_id){
+                    $("#show_when_success").removeClass("d-none")
+                    $("#data").text(JSON.stringify(val))
+                    $("#pid").text(`Participant ID: ${val["id"]}`)
+                    $("#pname").text(`Participant Name: ${val["name"]}`)
+                    $("#gender").text(`Gender: ${val["gender"]}`)
+                    $("#school").text(`School: ${val["school"]}`)
+                    $("#arrived").text(`Arrived? ${val["arrive"]}`)
+                    $("#presence").text(`Present? ${val["present"]}`)
+                    return
+                }
+            })
+        }else{
+            $("#result").html(`<h2>Invalid Code</h2>
+            <p><a href="${result}">${result}</a></p>`)
+        }
+    //     document.getElementById('result').innerHTML = `
+    //     <h2>Success!</h2>
+    //     <p><a href="${result}">${result}</a></p>
+    // `;
+        scanner.clear();
+    }
+    function error(err) {
+    console.error(err);
+    }
+    function reset(){
+        $("#show_when_success").addClass("d-none")
+        $("#result").html("")
+        $("#data").html("")
+    }
+    $(".searchid-btn").click(function(){
+        reset()
+        var entered_id=$(".id-input").val().toUpperCase()
+        var plist={{ data | tojson }};
+        plist["data"].map(function(val){
+            if(val["id"]==entered_id){
+                $("#show_when_success").removeClass("d-none")
+                $("#data").text(JSON.stringify(val))
+                $("#pid").text(`Participant ID: ${val["id"]}`)
+                $("#pname").text(`Participant Name: ${val["name"]}`)
+                $("#gender").text(`Gender: ${val["gender"]}`)
+                $("#school").text(`School: ${val["school"]}`)
+                $("#arrived").text(`Arrived? ${val["arrive"]}`)
+                $("#presence").text(`Present? ${val["present"]}`)
+                $(".inv-id-msg").addClass("d-none")
+                return
+            }
+        })
+        if($("#show_when_success").hasClass("d-none")){
+            $(".inv-id-msg").removeClass("d-none")
+        }
+    })
+    $(".reset-btn").click(function(){
+        reset()
+        if(!$("#reader").hasClass("d-none")){
+            scanner.render(success, error)
+        }
+    })
+    $(".rvq-btn").click(function(){
+        $(".id-input-group").addClass("d-none")
+        $(".datatable").addClass("d-none")
+        $(".searchid-btn").addClass("d-none")
+        $("#reader").removeClass("d-none")
+        $("#result").removeClass("d-none")
+        $(".rvq-btn").removeClass("btn-outline-success").addClass("btn-success")
+        $(".rvi-btn").removeClass("btn-secondary").addClass("btn-outline-secondary")
+    })
+    $(".rvi-btn").click(function(){
+        $(".id-input-group").removeClass("d-none")
+        $(".datatable").removeClass("d-none")
+        $(".searchid-btn").removeClass("d-none")
+        $("#reader").addClass("d-none")
+        $("#result").addClass("d-none")
+        $(".rvq-btn").removeClass("btn-success").addClass("btn-outline-success")
+        $(".rvi-btn").removeClass("btn-outline-secondary").addClass("btn-secondary")
+    })
+</script>
+{% endblock %}

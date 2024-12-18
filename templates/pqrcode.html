@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}hi{% endblock %}
+
+{% block content %}
+<div>{{pdata}}</div>
+<img class="qrcode">
+<script>
+    $(document).ready(function(){
+        const dataUrl = QRCode.toDataURL(window.location.href).then(dataUrl => {
+            $(".qrcode").attr("src",dataUrl)
+        })
+    })
+</script>
+{% endblock %}
