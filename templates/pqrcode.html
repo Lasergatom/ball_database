@@ -2,12 +2,29 @@
 {% block title %}hi{% endblock %}
 
 {% block content %}
-<div>{{pdata}}</div>
-<img class="qrcode">
+    <div class="information d-flex flex-column align-items-center justify-content-center"></div>
+    <!-- <img src="/static/images/banner.jpg" style="height:100vh;width:100%;opacity: 0.5;object-fit: cover;position: absolute;"> -->
 <script>
     $(document).ready(function(){
+        $(".information").css("height",screen.height)
+        var pval={{ pdata | tojson }};
+        var msg=""
+        if(pval["arrive"]=='No'){
+            msg="Not Arrived"
+        }else{
+            msg="Arrived!"
+        }
         const dataUrl = QRCode.toDataURL(window.location.href).then(dataUrl => {
-            $(".qrcode").attr("src",dataUrl)
+            $(".information").append(`
+                <div class="text-center bg-white">
+                <div class="title fs-3" style="margin-bottom:5px;" style="margin-top: 2px;">White Whisper Christmas Ball</div>
+                <div class="title fs-1" style="margin-bottom:5px;" style="margin-top: 2px;">登記二維碼</div>
+                <div class="id fs-3" style="margin-bottom:5px;">ID: ${pval["id"]}</div>
+                <div class="name fs-3 text-center" style="height:40px;">Name: ${pval["name"]}</div>
+                <div class="name fs-3 text-center" style="height:40px;">School: ${pval["school"]}</div>
+                <div class="name fs-2 text-center" style="height:40px;">(${msg})</div>
+                <img class="code" src="${dataUrl}" style="width:275px;height:275px;margin-bottom:30px;">
+                </div>`)
         })
     })
 </script>

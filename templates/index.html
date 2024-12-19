@@ -26,16 +26,27 @@
                 { data: 'name' },
                 { data: 'gender' },
                 { data: 'school' },
+                { data: 'email' },
+                { data: 'IG' },
                 { data: 'arrive' },
-                { data: 'present' }
+                { data: 'present' },
+                { data: 'arrival_time' }
                 
             ],
             data: plist["data"]
         })
-        $(".datatable>tbody>tr").map(function(val,idx){
-            $(this).addClass("plist").children().eq(0).wrap(`<a href='/pqrcode/${$(this).children().eq(0).text()}' class='d-block'></a>`)
-        })
+        // $(".datatable>tbody>tr").map(function(val,idx){
+        //     $(this).addClass("plist").children().eq(0).wrap(`<a href='/pqrcode/${$(this).children().eq(0).text()}' class='d-block'></a>`).parent().addClass("wrapped")
+        // })
         
     });
+    // $(".dt-paging-button").click(function(){
+    //     $(".datatable>tbody>tr").map(function(val,idx){
+    //         console.log($(this).children().eq(0).hasClass("wrapped"))
+    //         if(!($(this).children().eq(0).hasClass("wrapped"))){
+    //             $(this).addClass("plist").children().eq(0).wrap(`<a href='/pqrcode/${$(this).children().eq(0).text()}' class='d-block'></a>`).parent().addClass("wrapped")
+    //         }
+    //     })
+    // })
     </script>
 {% endblock %}
