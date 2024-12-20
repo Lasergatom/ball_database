@@ -20,7 +20,7 @@
     var plist={{ data | tojson }};
     $("table").append(`<tr style="border:2px solid black"></tr>`)
     plist["data"].map(function(val,idx){
-        const dataUrl = QRCode.toDataURL(window.location.href.slice(0,-7)+`pqrcode/${val["id"]}`).then(dataUrl => {
+        const dataUrl = QRCode.toDataURL(`synergy/christmasball/922/pqrcode/${val["id"]}`).then(dataUrl => {
             $("table").children().eq($("table").children().length-1).append(`
                 <td style="border:2px solid black"><div class="d-inline-flex flex-column align-items-center" style="width:200px">
                     <div class="title" style="margin-bottom:5px;" style="margin-top: 2px;">登記二維碼</div>

@@ -45,7 +45,7 @@
     });
     scanner.render(success, error);
     function success(result) {
-        if(result.slice(0,-6)==window.location.href.slice(0,-4)+"pqrcode/"){
+        if(result.slice(0,-6)=="synergy/christmasball/922/pqrcode/"){
             $("#result").html(`<h2>Valid Code</h2>
             <p><a href="${result}">${result}</a></p>`)
             var scanned_id=result.slice(-6,result.length)

@@ -14,7 +14,7 @@
         }else{
             msg="Arrived!"
         }
-        const dataUrl = QRCode.toDataURL(window.location.href).then(dataUrl => {
+        const dataUrl = QRCode.toDataURL(`synergy/christmasball/922/pqrcode/${pval["id"]}`).then(dataUrl => {
             $(".information").append(`
                 <div class="text-center bg-white">
                 <div class="title fs-3" style="margin-bottom:5px;" style="margin-top: 2px;">White Whisper Christmas Ball</div>
