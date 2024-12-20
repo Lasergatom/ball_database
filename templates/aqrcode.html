@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}登記 QR Code - 全部{% endblock %}
 {% block content %}
-<div class="content p-1">
+<div class="content p-1 d-none">
     <table style="border:2px solid black">
         <!-- <tr>
             <td>
@@ -15,7 +15,7 @@
         </tr> -->
     </table>
 </div>
-
+<div class="urls"></div>
 <script>
     var plist={{ data | tojson }};
     $("table").append(`<tr style="border:2px solid black"></tr>`)
@@ -28,6 +28,8 @@
                     <div class="name text-center" style="height:75px;">Name:<br>${val["name"]}</div>
                     <img class="code" src="${dataUrl}" style="width:120px;height:120px;margin-bottom:30px;">
                     </div></td>`)
+            $(".urls").append(`<div>${val["id"]} ${dataUrl}</div>`)
+            console.log(val["id"]+" "+dataUrl)
             if((idx+1)%5==0){
                 $("table").append(`<tr style="border:2px solid black"></tr>`)
             }
