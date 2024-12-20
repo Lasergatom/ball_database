@@ -35,3 +35,6 @@ def aqrcode():
   data=json.loads(datafile.read())
   print(data)
   return render_template(f'aqrcode.html',data=data)
+
+if __name__ == "__main__":
+  app.run(debug=True)
