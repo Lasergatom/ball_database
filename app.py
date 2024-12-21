@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, flash, session, request
+from flask import Flask, render_template, redirect, flash, session, request, jsonify
 import json, datetime
 app = Flask(__name__)
 app.secret_key='Cynergy'
@@ -22,12 +22,38 @@ def pqrcode(name):
   return render_template(f'pqrcode.html',name=name,pdata=pdata)
 
 
-@app.route('/scan')
+@app.route('/scan',methods=['GET', 'POST'])
 def scan():
   datafile=open("data/data.json","r")
   data=json.loads(datafile.read())
-  print(data)
-  return render_template(f'scan.html',data=data)
+  if(request.method=='GET'):
+    return render_template(f'scan.html',data=data)
+  elif(request.method=='POST'):
+    if(request.form["status"]=="reset"):
+      return jsonify(data=data)
+    id=request.form["id"]
+    for val in data["data"]:
+      if val["id"]==id:
+        if(request.form["status"]=="arrived"):
+          if(val["arrive"]=="No"):
+            now=datetime.datetime.now()
+            time = now.strftime("%H:%M:%S")
+            val["arrival_time"]=time
+          val["arrive"]="Yes"
+          val["present"]="Yes"
+        elif(request.form["status"]=="leaving"):
+          val["present"]="No"
+        break
+    restructured_json = json.dumps(data, indent=4, ensure_ascii=False)
+    with open("data/data.json", "w") as outfile:
+      outfile.write(restructured_json)
+    
+    datafile=open("data/data.json","r")
+    data=json.loads(datafile.read())
+
+    print(request.form["id"])
+    print(data)
+    return jsonify(data=data)
 
 @app.route('/aqrcode')
 def aqrcode():
@@ -35,6 +61,11 @@ def aqrcode():
   data=json.loads(datafile.read())
   print(data)
   return render_template(f'aqrcode.html',data=data)
+
+@app.route('/arrive')
+def arrive():
+    print ("Hello")
+    return ("nothing")
 
 if __name__ == "__main__":
   app.run(debug=True)

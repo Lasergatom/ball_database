@@ -2,6 +2,7 @@
 {% block title %}Registration Tool{% endblock %}
 
 {% block content %}
+<div class="temp"></div>
 <nav class="navbar bg-body-tertiary">
     <form class="container-fluid justify-content-start">
       <button class="rvq-btn btn btn-success mx-2" type="button">Register Via QRcode</button>
@@ -16,7 +17,7 @@
 <button class="btn searchid-btn btn-outline-success fs-5 my-2 mx-2 d-none">Search ID</button>
 <div id="reader"></div>
 <div id="result"></div>
-<div id="data"></div>
+<div id="data" class="d-none"></div>
 <div id="show_when_success" class="d-none">
     <div class="card data_card mx-2 px-2 fs-5">
         <div id="pid"></div>
@@ -27,14 +28,16 @@
         <div id="presence"></div>
     </div>
     <div class="mx-2">
-        <button class="btn act_presence bg-success text-white fs-5 my-2">Register as Present</button>
-        <button class="btn act_presence bg-danger text-white fs-5 my-2">Register as Leaving</button>
+        <button class="btn reg_presence bg-success text-white fs-5 my-2">Register as Present</button>
+        <button class="btn reg_leaving bg-danger text-white fs-5 my-2">Register as Leaving</button>
     </div>
+    <div class="reg_status"></div>
 </div>
 <button class="btn reset-btn btn-outline-primary fs-5 my-2 mx-2">reset</button>
 
-<iframe src="" class="datatable w-100" style="height:100vh"></iframe>
+<iframe src="" class="datatable w-100 d-none" style="height:100vh"></iframe>
 <script>
+    var plist={{ data | tojson }}
     $(".datatable").attr("src",window.location.href.slice(0,-4))
     var scanner = new Html5QrcodeScanner('reader', {
     qrbox: {
@@ -43,13 +46,34 @@
     },
     fps: 20,
     });
+    // Post to the provided URL with the specified parameters.
+function post(path, parameters) {
+    var form = $('<form></form>');
+
+    form.attr("method", "post");
+    form.attr("action", path);
+
+    $.each(parameters, function(key, value) {
+        var field = $('<input></input>');
+
+        field.attr("type", "hidden");
+        field.attr("name", key);
+        field.attr("value", value);
+
+        form.append(field);
+    });
+
+    // The form needs to be a part of the document in
+    // order for us to be able to submit it.
+    $(document.body).append(form);
+    form.submit();
+}
     scanner.render(success, error);
     function success(result) {
         if(result.slice(0,-6)=="synergy/christmasball/922/pqrcode/"){
             $("#result").html(`<h2>Valid Code</h2>
             <p><a href="${result}">${result}</a></p>`)
             var scanned_id=result.slice(-6,result.length)
-            var plist={{ data | tojson }};
             plist["data"].map(function(val){
                 if(val["id"]==scanned_id){
                     $("#show_when_success").removeClass("d-none")
@@ -76,15 +100,27 @@
     function error(err) {
     console.error(err);
     }
-    function reset(){
-        $("#show_when_success").addClass("d-none")
+    async function reset(){
+        if(!$("#show_when_success").hasClass("d-none")){
+            $("#show_when_success").addClass("d-none")
+        }
         $("#result").html("")
-        $("#data").html("")
+        $(".reg_status").text("")
+        params=new FormData()
+        params.append("status","reset")
+        fetch("/scan", {
+            "method": "POST",
+            "body": params//{"id":$("#pid").text().slice(-6,$("#pid").text().length),"status":"arrived"}
+        })
+        .then(data => data.json())
+        .then(json => {
+            plist=json["data"]
+            console.log(plist)
+        })
     }
     $(".searchid-btn").click(function(){
         reset()
         var entered_id=$(".id-input").val().toUpperCase()
-        var plist={{ data | tojson }};
         plist["data"].map(function(val){
             if(val["id"]==entered_id){
                 $("#show_when_success").removeClass("d-none")
@@ -126,6 +162,54 @@
         $("#result").addClass("d-none")
         $(".rvq-btn").removeClass("btn-success").addClass("btn-outline-success")
         $(".rvi-btn").removeClass("btn-outline-secondary").addClass("btn-secondary")
+    })
+    $(".reg_presence").click(function(e){
+        var a
+        e.preventDefault()
+        if($("#presence").text()==`Present? No`){
+            params=new FormData()
+            params.append("id",$("#pid").text().slice(-6,$("#pid").text().length))
+            params.append("status","arrived")
+            fetch("/scan", {
+                "method": "POST",
+                "body": params//{"id":$("#pid").text().slice(-6,$("#pid").text().length),"status":"arrived"}
+            })
+            .then(data => data.json())
+            .then(json => {
+                plist=json["data"]
+            // post("/scan",{"id":$("#pid").text().slice(-6,$("#pid").text().length),"status":"arrived"})
+            // plist={{ data | tojson }}
+                $(".reg_status").text("Success")
+                $("#arrived").text(`Arrived? Yes`)
+                $("#presence").text(`Present? Yes`)
+            })
+            //console.log(JSON.stringify(plist))
+        }else{
+            $(".reg_status").text("User is Already Present!!!")
+        }
+    })
+    $(".reg_leaving").click(function(){
+        if($("#arrived").text()==`Arrived? Yes`){
+            if($("#presence").text()==`Present? No`){
+                $(".reg_status").text("User has Already Left!!!")
+            }else{
+                params=new FormData()
+                params.append("id",$("#pid").text().slice(-6,$("#pid").text().length))
+                params.append("status","leaving")
+                fetch("/scan", {
+                    "method": "POST",
+                    "body": params//{"id":$("#pid").text().slice(-6,$("#pid").text().length),"status":"arrived"}
+                })
+                .then(data => data.json())
+                .then(json => {
+                    plist=json["data"]
+                    $(".reg_status").text("Success")
+                    $("#presence").text(`Present? No`)
+                })
+            }
+        }else{
+            $(".reg_status").text("User has Never Arrived!!!")
+        }
     })
 </script>
 {% endblock %}
