@@ -8,14 +8,14 @@ def base():
 
 @app.route('/index')
 def index():
-  datafile=open("data/data.json","r")
+  datafile=open("tmp/data.json","r")
   data=json.loads(datafile.read())
   print(data)
   return render_template(f'index.html',data=data)
 
 @app.route('/pqrcode/<name>')
 def pqrcode(name):
-  datafile=open("data/data.json","r")
+  datafile=open("tmp/data.json","r")
   apdata=json.loads(datafile.read())["data"]
   pdata=[ temp for temp in apdata if temp['id']==name ][0]
   print(pdata)
@@ -24,7 +24,7 @@ def pqrcode(name):
 
 @app.route('/scan',methods=['GET', 'POST'])
 def scan():
-  datafile=open("data/data.json","r")
+  datafile=open("tmp/data.json","r")
   data=json.loads(datafile.read())
   if(request.method=='GET'):
     return render_template(f'scan.html',data=data)
@@ -45,10 +45,10 @@ def scan():
           val["present"]="No"
         break
     restructured_json = json.dumps(data, indent=4, ensure_ascii=False)
-    with open("data/data.json", "w") as outfile:
+    with open("tmp/data.json", "w") as outfile:
       outfile.write(restructured_json)
     
-    datafile=open("data/data.json","r")
+    datafile=open("tmp/data.json","r")
     data=json.loads(datafile.read())
 
     print(request.form["id"])
@@ -57,15 +57,10 @@ def scan():
 
 @app.route('/aqrcode')
 def aqrcode():
-  datafile=open("data/data.json","r")
+  datafile=open("tmp/data.json","r")
   data=json.loads(datafile.read())
   print(data)
   return render_template(f'aqrcode.html',data=data)
-
-@app.route('/arrive')
-def arrive():
-    print ("Hello")
-    return ("nothing")
 
 if __name__ == "__main__":
   app.run(debug=True)
